@@ -1,0 +1,30 @@
+version: 2
+sources: 
+  - name: gz_source
+    schema: gz_raw_data
+    tables:
+      - name: sales
+        identifier: raw_gz_sales
+        description: sales of Greenweez / we have one row per product_id found in each orders_id
+        loaded_at_field: CAST((date_date) AS TIMESTAMP)
+        freshness:
+          warn_after: { count: 90, period: day }
+        tests:
+          - unique:
+              column_name: "(pdt_id || '-' || orders_id)"
+      - name: product
+        identifier: raw_gz_product
+        description: product of Greenweez / we have one row per product_id and its purchase cost
+        columns:
+          - name: products_id
+            tests:
+              - not_null
+              - unique 
+      - name: ship
+        identifier: raw_gz_ship
+        description: ship of Greenweez / shipping info por each order
+        columns:
+          - name: orders_id
+            tests:
+              - not_null
+              - unique
